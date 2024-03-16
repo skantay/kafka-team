@@ -7,8 +7,6 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-    volumes:
-      - "zookeeper-volume:/bitnami"
   kafka:
     restart:  always
     image: docker.io/bitnami/kafka:3.3
@@ -24,10 +22,13 @@ services:
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
     depends_on:
       - zookeeper
+  kowl:
+    image: quay.io/cloudhut/kowl:v1.4.0
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
     volumes:
-      - "kafka-volume:/bitnami"
-volumes:
-  kafka-volume:
-    driver: local
-  zookeeper-volume:
-    driver: local
+    - ./kowl_config:/etc/kowl/
+    depends_on:
+      - kafka
